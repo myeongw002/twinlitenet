@@ -1,0 +1,11 @@
+<launch>
+
+    <arg name="weights" default="$(find twinlitenet)/src/pretrained/best.pth"/>
+    <arg name="image_tpoic" default="/usb_cam/image_raw/compressed"/>
+
+    <node pkg="twinlitenet" type="test_image2.py" name="TwinLiteNets" output='screen'>
+    <param name="weights" value="$(arg weights)"/>
+    <param name="image_tpoic" value="$(arg image_tpoic)"/>
+    </node>
+    
+</launch>    
