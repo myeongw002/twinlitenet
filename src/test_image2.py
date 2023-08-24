@@ -27,6 +27,9 @@ class TwinLiteNet:
         self.image_sub = rospy.Subscriber(image_topic, CompressedImage, self.callback)
         self.da_pub = rospy.Publisher('/drivable_area', PixelCoordinates, queue_size = 1)
         self.ll_pub = rospy.Publisher('/line_lane', PixelCoordinates, queue_size = 1)
+        
+        
+        
     def _initialize_model(self):
         model = net.TwinLiteNet()
         model = torch.nn.DataParallel(model)
@@ -68,7 +71,7 @@ class TwinLiteNet:
         img_proc = img_proc.cuda().float() / 255.0
         if self.half:
             img_proc = img_proc.half()
-            
+
         with torch.no_grad():
             img_out = self.model(img_proc)
 
@@ -86,15 +89,22 @@ class TwinLiteNet:
         LL_original = cv2.resize(LL, (original_width, original_height), interpolation=cv2.INTER_NEAREST)
 
         da_coords = np.array(np.where(DA_original > 100))
-        ll_coords = np.array(np.where(LL_original > 100)) 
-        #print(da_coords[0])
-        #print(da_coords[1])
+        ll_coords = np.array(np.where(LL_original > 100))
+
         self.coord_publisher(self.da_pub, da_coords)
         self.coord_publisher(self.ll_pub, ll_coords)
-        img[DA_original > 100] = [0, 255, 0]
-        img[LL_original > 100] = [0, 0, 255]
+
+        alpha = 0.5  # transparency level
+
+        overlay = img.copy()
+        overlay[DA_original > 100] = [0, 255, 0]
+        overlay[LL_original > 100] = [0, 0, 255]
+
+        # Use cv2.addWeighted() to overlay the transparent areas onto the original image
+        cv2.addWeighted(overlay, alpha, img, 1 - alpha, 0, img)
 
         return img
+
 
     def coord_publisher(self,publisher,coords):
         msg = PixelCoordinates()
