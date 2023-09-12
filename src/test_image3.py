@@ -10,8 +10,6 @@ import torch
 from model import TwinLite as net
 import time
 from sklearn.cluster import DBSCAN
-
-
 class TwinLiteNet:
     
     def __init__(self, img_size=640, half=True):
@@ -85,7 +83,6 @@ class TwinLiteNet:
 
         DA = da_predict.byte().cpu().data.numpy()[0] * 255
         LL = ll_predict.byte().cpu().data.numpy()[0] * 255
-
         # Resize the DA and LL masks back to original dimensions
         DA_original = cv2.resize(DA, (original_width, original_height), interpolation=cv2.INTER_NEAREST)
         LL_original = cv2.resize(LL, (original_width, original_height), interpolation=cv2.INTER_NEAREST)
@@ -95,7 +92,25 @@ class TwinLiteNet:
 
         self.coord_publisher(self.da_pub, da_coords)
         self.coord_publisher(self.ll_pub, ll_coords)
+        '''
+        clustering = DBSCAN(eps=1, min_samples=6).fit(ll_coords.T)
 
+        # Separate lanes based on DBSCAN clustering results
+        lanes = {}
+        for i, label in enumerate(clustering.labels_):
+            if label not in lanes:
+                lanes[label] = {"x": [], "y": []}
+            lanes[label]["y"].append(ll_coords[1][i])
+            lanes[label]["x"].append(ll_coords[0][i])
+        
+        #print(type(self.lanes))
+        # 'lanes' now contains separated lane coordinates
+        # You can process each lane separately as needed
+        
+        unique_labels = np.unique(clustering.labels_)
+        number_of_lanes = len(unique_labels[unique_labels != -1])
+        rospy.loginfo(f"Number of detected lanes: {number_of_lanes}")
+        '''
         alpha = 0.5  # transparency level
 
         overlay = img.copy()

@@ -1,5 +1,7 @@
 <launch>
-
+    
+    
+    <!--
     <arg name="weights" default="$(find twinlitenet)/src/pretrained/best.pth"/>
     <arg name="image_tpoic" default="/zed/zed_node/rgb/image_rect_color/compressed"/>
     <arg name="depth_tpoic" default="/zed/zed_node/depth/depth_registered"/>
@@ -8,13 +10,13 @@
     <param name="weights" value="$(arg weights)"/>
     <param name="image_tpoic" value="$(arg image_tpoic)"/>
     </node>
+    -->
     
     
-    <!--
     <node pkg="twinlitenet" type="depth_sub3.py" name="coords_sub" output='screen'>
     <param name="depth_tpoic" value="$(arg image_tpoic)"/>
     </node>
-    -->
+    
     
     
 </launch>    
